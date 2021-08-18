@@ -14,7 +14,7 @@ use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class ClassDefinitionTest extends TestCase
 {
-    public function testResolveRequiredUnionTypeWithIncorrectTypeInContainer(): void
+    public function te1stResolveRequiredUnionTypeWithIncorrectTypeInContainer(): void
     {
         $class = stdClass::class . '|' . GearBox::class;
 
@@ -35,7 +35,7 @@ final class ClassDefinitionTest extends TestCase
         $definition->resolve($dependencyResolver);
     }
 
-    public function testResolveOptionalUnionTypeWithIncorrectTypeInContainer(): void
+    public function tes1tResolveOptionalUnionTypeWithIncorrectTypeInContainer(): void
     {
         $class = stdClass::class . '|' . GearBox::class;
 

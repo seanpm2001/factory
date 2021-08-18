@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Factory\Definition;
 
+use Psr\Container\ContainerExceptionInterface;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionUnionType;
 use Yiisoft\Factory\DependencyResolverInterface;
+use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Exception\NotInstantiableException;
 
 final class ParameterDefinition implements DefinitionInterface
@@ -36,6 +38,87 @@ final class ParameterDefinition implements DefinitionInterface
 
     public function resolve(DependencyResolverInterface $container)
     {
+        $type = $this->parameter->getType();
+
+        if ($type === null) {
+            return $this->resolveNotObject();
+        }
+
+        // PHP 8 union type is used as type hint
+        /** @psalm-suppress UndefinedClass, TypeDoesNotContainType */
+        if ($type instanceof ReflectionUnionType) {
+            $types = [];
+            /** @var ReflectionNamedType $unionType */
+            foreach ($type->getTypes() as $unionType) {
+                if (!$unionType->isBuiltin()) {
+                    $typeName = $unionType->getName();
+                    if ($typeName === 'self') {
+                        // If type name is "self", it means that called class and
+                        // $parameter->getDeclaringClass() returned instance of `ReflectionClass`.
+                        /** @psalm-suppress PossiblyNullReference */
+                        $typeName = $this->parameter->getDeclaringClass()->getName();
+                    }
+
+                    $types[] = $typeName;
+                }
+            }
+
+            if ($types === []) {
+                return $this->resolveNotObject();
+            }
+
+            /** @psalm-suppress MixedArgument */
+            return $this->resolveObject($container, ...$types);
+        }
+
+        /** @var ReflectionNamedType $type */
+
+        // Our parameter has a class type hint
+        if (!$type->isBuiltin()) {
+            $typeName = $type->getName();
+            if ($typeName === 'self') {
+                // If type name is "self", it means that called class and
+                // $parameter->getDeclaringClass() returned instance of `ReflectionClass`.
+                /** @psalm-suppress PossiblyNullReference */
+                $typeName = $this->parameter->getDeclaringClass()->getName();
+            }
+
+            return $this->resolveObject($container, $typeName);
+        }
+
+        return $this->resolveNotObject();
+    }
+
+    /**
+     * @return mixed
+     */
+    private function resolveObject(DependencyResolverInterface $container, string ...$types)
+    {
+        foreach ($types as $type) {
+            if ($container->has($type)) {
+                $result = $container->get($type);
+                if (!$result instanceof $type) {
+                    $actualType = $this->getValueType($result);
+                    throw new InvalidConfigException(
+                        "Container returned incorrect type \"$actualType\" for service \"$this->class\"."
+                    );
+                }
+                return $result;
+            }
+        }
+
+        if ($this->parameter->isDefaultValueAvailable()) {
+            return $this->parameter->getDefaultValue();
+        }
+
+        $this->throw();
+    }
+
+    /**
+     * @return mixed
+     */
+    private function resolveNotObject()
+    {
         if ($this->parameter->isDefaultValueAvailable()) {
             return $this->parameter->getDefaultValue();
         }
@@ -51,15 +134,7 @@ final class ParameterDefinition implements DefinitionInterface
             );
         }
 
-        throw new NotInstantiableException(
-            sprintf(
-                'Can not determine value of the "%s" parameter of type "%s" when instantiating "%s". ' .
-                'Please specify argument explicitly.',
-                $this->parameter->getName(),
-                ($this->parameter->allowsNull() ? '?' : '') . $this->getType(),
-                $this->getCallable(),
-            )
-        );
+        $this->throw();
     }
 
     private function getType(): string
@@ -97,5 +172,29 @@ final class ParameterDefinition implements DefinitionInterface
         $callable[] = $this->parameter->getDeclaringFunction()->getName() . '()';
 
         return implode('::', $callable);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function getValueType($value): string
+    {
+        return is_object($value) ? get_class($value) : gettype($value);
+    }
+
+    /**
+     * @throws NotInstantiableException
+     */
+    private function throw()
+    {
+        throw new NotInstantiableException(
+            sprintf(
+                'Can not determine value of the "%s" parameter of type "%s" when instantiating "%s". ' .
+                'Please specify argument explicitly.',
+                $this->parameter->getName(),
+                ($this->parameter->allowsNull() ? '?' : '') . $this->getType(),
+                $this->getCallable(),
+            )
+        );
     }
 }

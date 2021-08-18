@@ -38,6 +38,7 @@ use Yiisoft\Factory\Tests\Support\GearBox;
 use Yiisoft\Factory\Tests\Support\Immutable;
 use Yiisoft\Factory\Tests\Support\InvokableCarFactory;
 use Yiisoft\Factory\Tests\Support\MethodTest;
+use Yiisoft\Factory\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Factory\Tests\Support\NullableInterfaceDependency;
 use Yiisoft\Factory\Tests\Support\Phone;
 use Yiisoft\Factory\Tests\Support\PropertyTest;
@@ -631,6 +632,32 @@ final class FactoryTest extends TestCase
             'Please specify argument explicitly.'
         );
         $factory->create(Firefighter::class);
+    }
+
+    public function testCreateObjectWithNullableObjectConstructorArgument(): void
+    {
+        $factory = new Factory();
+
+        $this->expectException(NotInstantiableException::class);
+        $this->expectExceptionMessage(
+            'Can not determine value of the "car" parameter of type "?Yiisoft\Factory\Tests\Support\Car" ' .
+            'when instantiating "Yiisoft\Factory\Tests\Support\NullableConcreteDependency::__construct()". ' .
+            'Please specify argument explicitly.'
+        );
+        $factory->create(NullableConcreteDependency::class);
+    }
+
+    public function testCreateObjectWithNullableInterfaceConstructorArgument(): void
+    {
+        $factory = new Factory();
+
+        $this->expectException(NotInstantiableException::class);
+        $this->expectExceptionMessage(
+            'Can not determine value of the "car" parameter of type "?Yiisoft\Factory\Tests\Support\EngineInterface" ' .
+            'when instantiating "Yiisoft\Factory\Tests\Support\NullableInterfaceDependency::__construct()". ' .
+            'Please specify argument explicitly.'
+        );
+        $factory->create(NullableInterfaceDependency::class);
     }
 
     public function testCreateNonExistsClass(): void

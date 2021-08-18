@@ -28,7 +28,7 @@ final class DefinitionExtractorTest extends TestCase
         $this->assertEquals(null, $dependencies['timezone']->resolve($container));
     }
 
-    public function testResolveCarConstructor(): void
+    public function te1stResolveCarConstructor(): void
     {
         $extractor = DefinitionExtractor::getInstance();
         $dependencyResolver = TestHelper::createDependencyResolver();

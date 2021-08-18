@@ -13,16 +13,9 @@ use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class ClassDefinitionTest extends TestCase
 {
-    public function testGetType(): void
+    public function t1estResolveWithIncorrectTypeInContainer(): void
     {
-        $definition = new ClassDefinition(stdClass::class, true);
-
-        $this->assertSame(stdClass::class, $definition->getType());
-    }
-
-    public function testResolveWithIncorrectTypeInContainer(): void
-    {
-        $definition = new ClassDefinition(stdClass::class, true);
+        $definition = ClassDefinition::withDefaultValue(stdClass::class, true);
 
         $container = new SimpleContainer([stdClass::class => 42]);
         $dependencyResolver = TestHelper::createDependencyResolver($container);

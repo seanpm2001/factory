@@ -6,7 +6,6 @@ namespace Yiisoft\Factory\Tests\Unit\Definition;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Factory\Definition\ClassDefinition;
 use Yiisoft\Factory\Definition\DefinitionInterface;
 use Yiisoft\Factory\Definition\ParameterDefinition;
 use Yiisoft\Factory\Exception\NotInstantiableClassException;
@@ -51,7 +50,7 @@ final class DefinitionExtractorTest extends TestCase
         $dependencies = $resolver->fromClassName(Car::class);
 
         $this->assertCount(2, $dependencies);
-        $this->assertInstanceOf(ClassDefinition::class, $dependencies['engine']);
+        $this->assertInstanceOf(ParameterDefinition::class, $dependencies['engine']);
         $this->assertInstanceOf(ParameterDefinition::class, $dependencies['moreEngines']);
 
         $this->expectException(NotInstantiableClassException::class);
@@ -78,32 +77,12 @@ final class DefinitionExtractorTest extends TestCase
         $this->assertEquals(null, $dependencies['engine']->resolve($container));
     }
 
-    public function testNullableInterfaceDependency(): void
-    {
-        $resolver = DefinitionExtractor::getInstance();
-        $container = TestHelper::createDependencyResolver();
-        /** @var DefinitionInterface[] $dependencies */
-        $dependencies = $resolver->fromClassName(NullableInterfaceDependency::class);
-        $this->assertCount(1, $dependencies);
-        $this->assertEquals(null, $dependencies['engine']->resolve($container));
-    }
-
     public function testOptionalConcreteDependency(): void
     {
         $resolver = DefinitionExtractor::getInstance();
         $container = TestHelper::createDependencyResolver();
         /** @var DefinitionInterface[] $dependencies */
         $dependencies = $resolver->fromClassName(OptionalConcreteDependency::class);
-        $this->assertCount(1, $dependencies);
-        $this->assertEquals(null, $dependencies['car']->resolve($container));
-    }
-
-    public function testNullableConcreteDependency(): void
-    {
-        $resolver = DefinitionExtractor::getInstance();
-        $container = TestHelper::createDependencyResolver();
-        /** @var DefinitionInterface[] $dependencies */
-        $dependencies = $resolver->fromClassName(NullableConcreteDependency::class);
         $this->assertCount(1, $dependencies);
         $this->assertEquals(null, $dependencies['car']->resolve($container));
     }
