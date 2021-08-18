@@ -39,7 +39,6 @@ use Yiisoft\Factory\Tests\Support\Immutable;
 use Yiisoft\Factory\Tests\Support\InvokableCarFactory;
 use Yiisoft\Factory\Tests\Support\MethodTest;
 use Yiisoft\Factory\Tests\Support\NullableInterfaceDependency;
-use Yiisoft\Factory\Tests\Support\NullableScalarConstructorArgument;
 use Yiisoft\Factory\Tests\Support\Phone;
 use Yiisoft\Factory\Tests\Support\PropertyTest;
 use Yiisoft\Factory\Tests\Support\Recorder;
@@ -625,9 +624,13 @@ final class FactoryTest extends TestCase
     {
         $factory = new Factory();
 
-        $object = $factory->create(Firefighter::class);
-
-        $this->assertNull($object->getName());
+        $this->expectException(NotInstantiableException::class);
+        $this->expectExceptionMessage(
+            'Can not determine value of the "name" parameter of type "?string" when instantiating ' .
+            '"Yiisoft\Factory\Tests\Support\Firefighter::__construct()". ' .
+            'Please specify argument explicitly.'
+        );
+        $factory->create(Firefighter::class);
     }
 
     public function testCreateNonExistsClass(): void
@@ -1369,15 +1372,6 @@ final class FactoryTest extends TestCase
         } catch (CircularReferenceException $e) {
             $this->fail('Circular reference detected false positively.');
         }
-    }
-
-    public function testNullableScalarConstructorArgument(): void
-    {
-        $factory = new Factory();
-
-        $object = $factory->create(NullableScalarConstructorArgument::class);
-
-        $this->assertNull($object->getName());
     }
 
     public function testScalarConstructorArgument(): void

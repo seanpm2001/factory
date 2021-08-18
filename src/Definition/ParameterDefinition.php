@@ -40,10 +40,6 @@ final class ParameterDefinition implements DefinitionInterface
             return $this->parameter->getDefaultValue();
         }
 
-        if ($this->parameter->allowsNull()) {
-            return null;
-        }
-
         if ($this->isOptional()) {
             throw new NotInstantiableException(
                 sprintf(
@@ -60,7 +56,7 @@ final class ParameterDefinition implements DefinitionInterface
                 'Can not determine value of the "%s" parameter of type "%s" when instantiating "%s". ' .
                 'Please specify argument explicitly.',
                 $this->parameter->getName(),
-                $this->getType(),
+                ($this->parameter->allowsNull() ? '?' : '') . $this->getType(),
                 $this->getCallable(),
             )
         );
