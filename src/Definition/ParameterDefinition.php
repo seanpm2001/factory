@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Factory\Definition;
 
-use Psr\Container\ContainerExceptionInterface;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionUnionType;

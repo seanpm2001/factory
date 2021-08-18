@@ -13,8 +13,6 @@ use Yiisoft\Factory\Definition\DefinitionExtractor;
 use Yiisoft\Factory\Exception\NotInstantiableException;
 use Yiisoft\Factory\Tests\Support\Car;
 use Yiisoft\Factory\Tests\Support\GearBox;
-use Yiisoft\Factory\Tests\Support\NullableConcreteDependency;
-use Yiisoft\Factory\Tests\Support\NullableInterfaceDependency;
 use Yiisoft\Factory\Tests\Support\OptionalConcreteDependency;
 use Yiisoft\Factory\Tests\Support\OptionalInterfaceDependency;
 use Yiisoft\Factory\Tests\TestHelper;
