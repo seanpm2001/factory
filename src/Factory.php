@@ -56,6 +56,7 @@ final class Factory
 
     /**
      * @param array $definitions Definitions to validate.
+     *
      * @psalm-param array<string, mixed> $definitions
      *
      * @throws InvalidConfigException
@@ -116,8 +117,11 @@ final class Factory
      * @return mixed|object The created object.
      *
      * @psalm-template T
+     *
      * @psalm-param mixed|class-string<T> $config
+     *
      * @psalm-return ($config is class-string ? T : mixed)
+     *
      * @psalm-suppress MixedReturnStatement
      */
     public function create(mixed $config): mixed
